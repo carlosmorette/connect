@@ -9,22 +9,42 @@ defmodule Connect.Grid do
   end
 
   def play(grid, player, column) do
-    case drop_piece(grid, player, column, 0) do
-      :full_column ->
-        grid
+    {result, grid} =
+      case drop_piece(grid, player, {0, column}) do
+        :full_column ->
+          {:full_column, grid}
 
-      {new_grid, {row, column}} ->
-        if win?(new_grid, player, {row, column}) do
-          {:end_game, new_grid}
-        else
-          {:continue, new_grid}
-        end
+        {new_grid, {row, column}} ->
+          if win?(new_grid, player, {row, column}) do
+            {:end_game, new_grid}
+          else
+            {:continue, new_grid}
+          end
+      end
+
+    if tie?(grid), do: {:tie, grid}, else: {result, grid}
+  end
+
+  def tie?(board) do
+    not (board
+         |> List.flatten()
+         |> Enum.any?(fn p -> is_nil(p) end))
+  end
+
+  def drop_piece(grid, player, {5 = row, column}) do
+    place =
+      grid
+      |> Enum.at(row)
+      |> Enum.at(column)
+
+    if place == nil do
+      {put_piece(grid, player, {row, column}), {row, column}}
+    else
+      :full_column
     end
   end
 
-  def drop_piece(_grid, _column, _player, 5), do: :full_column
-
-  def drop_piece(grid, column, player, row) when column in 0..6 when row in 0..4 do
+  def drop_piece(grid, player, {row, column}) do
     place =
       grid
       |> Enum.at(row)
@@ -38,7 +58,7 @@ defmodule Connect.Grid do
     if place == nil and next_place != nil do
       {put_piece(grid, player, {row, column}), {row, column}}
     else
-      drop_piece(grid, column, player, row + 1)
+      drop_piece(grid, player, {row + 1, column})
     end
   end
 
@@ -90,6 +110,7 @@ defmodule Connect.Grid do
 
     o_column =
       case column do
+        :same -> :same
         :left -> :right
         :right -> :left
       end

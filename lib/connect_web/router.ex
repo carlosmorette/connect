@@ -1,5 +1,6 @@
 defmodule ConnectWeb.Router do
   use ConnectWeb, :router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -17,7 +18,7 @@ defmodule ConnectWeb.Router do
   scope "/", ConnectWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live "/", GameLive
   end
 
   # Other scopes may use custom stacks.

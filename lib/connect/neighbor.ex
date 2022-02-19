@@ -4,12 +4,12 @@ defmodule Connect.Neighbor do
   @max_rows 5
   @max_columns 6
 
-  def find_all(board, player, {row, column}) when player in @players do
-    board
+  def find_all(grid, player, {row, column}) when player in @players do
+    grid
     |> Enum.at(row)
     |> Enum.at(column)
     |> if do
-      board
+      grid
       |> get_by_row(row)
       |> get_by_column(column)
       |> filter_valid(player)
@@ -19,11 +19,11 @@ defmodule Connect.Neighbor do
     end
   end
 
-  def get_by_row(board, row) do
+  def get_by_row(grid, row) do
     row
     |> rows()
     |> Enum.reduce([], fn {direction, n}, acc ->
-      [{direction, Enum.at(board, row + n)} | acc]
+      [{direction, Enum.at(grid, row + n)} | acc]
     end)
   end
 
